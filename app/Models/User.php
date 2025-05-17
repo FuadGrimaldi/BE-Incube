@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\DetailUser;
+use App\Models\Address;
+use App\Models\UserSub;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 
@@ -24,6 +27,25 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
     ];
+
+    public function detail()
+    {
+        return $this->hasOne(DetailUser::class, 'id_user');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class, 'id_user');
+    }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'id_user');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSub::class, 'user_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

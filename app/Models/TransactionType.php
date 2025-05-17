@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TransactionType extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'transaction_types';
 
     protected $fillable = [
@@ -16,4 +17,8 @@ class TransactionType extends Model
         'action',
         'thumbnail'
     ];
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'transaction_type_id');
+    }
 }

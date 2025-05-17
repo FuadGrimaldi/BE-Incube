@@ -7,6 +7,7 @@ use App\Helpers\ResponseCostum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\DetailUser;
 use Melihovv\Base64ImageDecoder\Base64ImageDecoder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -49,11 +50,7 @@ class AuthController extends Controller
         $userResponse->token = $token;
         $userResponse->token_expires_in = auth()->factory()->getTTl()* 60;
         $userResponse->token_type = 'bearer';
-        return ResponseCostum::success('User registered successfully', [
-            $userResponse,
-        ], 201);
-
-
+        return ResponseCostum::success($userResponse, 'User registered successfully', 201);
     }
 
 
