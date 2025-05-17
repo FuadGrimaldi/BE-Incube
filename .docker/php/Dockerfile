@@ -25,6 +25,15 @@ WORKDIR /var/www
 # Copy existing application directory
 COPY . /var/www
 
+# Install PHP dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy .env file from .env.example
+RUN cp .env.example .env
+
+# Generate application key
+RUN php artisan key:generate
+
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www

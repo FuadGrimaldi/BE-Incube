@@ -5,14 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DataPlan extends Model
+class DetailUser extends Model
 {
     use HasFactory;
-    protected $table = 'data_plans';
-
+    protected $table = 'detail_user';
     protected $fillable = [
+        'id_user',
         'name',
-        'price',
-        'operator_card_id'
+        'age',
+        'geneder',
+        'contact',
+        'jon',
+        'profile_picture',
     ];
 }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ResponseCostum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
-use App\Models\Wallet;
 use Melihovv\Base64ImageDecoder\Base64ImageDecoder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -24,62 +24,36 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email',
             'password' => 'required|string|min:6',
-            'pin' => 'required|digits:6'
         ]);
         if ($validator->fails()){
-            return response()->json(['errors' => $validator->messages()],400);
+            return ResponseCostum::error(null, $validator->errors(), 422);
         }
 
-        $user = User::where('email',$request->email)->exists();
-        if ($user) {
-            return response()->json(['message' => 'Email already taken'], 409  );#tidak boleh ada data yang sama
+        if ($request->password !== $request->password_confirmation) {
+            return ResponseCostum::error(null, 'Password confirmation does not match.', 422);
+        }
+        if (User::where('email', $request->email)->exists()) {
+            return ResponseCostum::error(null,'Email already exists.', 422);
         }
 
-        DB::beginTransaction();
 
-        try {
-            $profilePicture = null;
-            $ktp = null;
-
-            if ($request->profile_picture){
-                $profilePicture = $this->uploadBase64Image($request->profile_picture);
-            }
-            if ($request->ktp){
-                $ktp = $this->uploadBase64Image($request->ktp);
-            }
-
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'username' => $request->name,
-                'password' => bcrypt($request->password),
-                'profile_picture' => $profilePicture,
-                'ktp' => $ktp,
-                'verified' => ($ktp) ? true : false,
-            ]);
-
-            Wallet::create([
-                'user_id' => $user->id,
-                'balance' => 0,
-                'pin' => $request->pin,
-                'card_number' => $this->generateCardNumber(16),
-            ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
             
-        DB::commit();
 
         $token = Auth::attempt(['email'=> $request->email, 'password'=>$request->password]);
         $userResponse = getUser($request->email);
         $userResponse->token = $token;
         $userResponse->token_expires_in = auth()->factory()->getTTl()* 60;
         $userResponse->token_type = 'bearer';
-        return response()->json($userResponse);
+        return ResponseCostum::success('User registered successfully', [
+            $userResponse,
+        ], 201);
 
 
-        } catch (\Throwable $th) {
-
-        DB::rollback();
-            return response()->json(['message' => $th->getMessage()],500);
-        }
     }
 
 
@@ -92,40 +66,31 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()){
-            return response()->json(['errors'=> $validator->messages()],400);
+            return ResponseCostum::error(null, $validator->errors(), 422);
         }
 
         try {
             if(! $token = auth()->attempt($credentials))
              {
-                return response()->json(['message' => 'Login credential are invalid'], 401);
+                return ResponseCostum::error(null, 'Invalid email or password', 422);
             }
             $userResponse = getUser($request->email);
             $userResponse->token = $token;
             $userResponse->token_expires_in = auth()->factory()->getTTl()* 60;
             $userResponse->token_type = 'bearer';
 
-            return response()->json($userResponse);
+            return ResponseCostum::success($userResponse,'User logged in successfully', 200);
 
         } catch (JWTException $th) {
-            return response()->json(['message'=> $th->getMessage()],500);
+            return ResponseCostum::error(null, 'Could not create token', 500);
         }
     }
-
-    private function generateCardNumber($length) {
-        $result = '';
-        for ($i=0; $i < $length; $i++) {
-            $result .= mt_rand(0,9);
-        }
-
-        $wallet = Wallet::where('card_number', $result)->exists();
-        if ($wallet) {
-            return $this->generateCardNumber($length);
-        }
-        return $result;
+    public function logout(Request $request) {
+        auth()->logout();
+        return ResponseCostum::success(null, 'User logged out successfully', 200);
     }
+
     //menghandle method upload
-
     private function uploadBase64Image($base64Image) {
         $decoder = new Base64ImageDecoder($base64Image, $allowedFormats = ['jpeg', 'png', 'jpg']);
         $decodedContent = $decoder->getDecodedContent();
