@@ -5,7 +5,6 @@
 /public/storage
 /storage/*.key
 /vendor
-/app/helpers.php
 /app/contoh.php
 .env
 .env.backup
