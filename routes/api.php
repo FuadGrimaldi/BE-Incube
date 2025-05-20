@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\WebHookController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\UserSubController;
+use App\Http\Controllers\Api\ProdukController;
 
 
 Route::post('register',[AuthController::class, 'register']);
@@ -21,6 +22,7 @@ Route::group(['middleware' => 'jwt.verify'], function($router) {
     Route::post('top_ups', [TopUpController::class, 'store']);
     Route::resource('users', UserController::class);
     Route::resource('addresses', AddressController::class);
+    Route::resource('produk', ProdukController::class);
     Route::resource('user-subscriptions', UserSubController::class);
     Route::get('user/user-subscriptions', [UserSubController::class, 'showUserSubByIdLogin']);
     Route::get('user/addresses', [AddressController::class, 'addressByUserSignIn']);
