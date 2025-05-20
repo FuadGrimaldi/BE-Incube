@@ -134,13 +134,13 @@ class UserSubController extends Controller
     {
         try {
             $userId = auth()->user()->id;
-            $sub = UserSub::where('id_cus', $userId)->first();
+            $sub = UserSub::where('id_cus', $userId)->get();
 
             if (!$sub) {
                 return ResponseCostum::error(null, 'Subscription not found for this user', 404);
             }
 
-            return ResponseCostum::success(new UserSubResource($sub), 'User subscription retrieved successfully', 200);
+            return ResponseCostum::success(UserSubResource::collection($sub), 'User subscription retrieved successfully', 200);
         } catch (\Exception $e) {
             Log::channel('daily')->error('Error in showUserSubByIdLogin: ' . $e->getMessage(), [
                 'exception' => $e,
