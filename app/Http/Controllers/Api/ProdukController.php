@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\ResponseCostum;
 use App\Models\Produk;
-use App\Http\Requests\ProdukRequest;  
+use App\Http\Requests\ProdukRequest;
+use App\Http\Requests\ProdukStatusRequest;
 use App\Http\Resources\ProdukResource;  
 use Illuminate\Support\Str;
 
@@ -139,5 +140,31 @@ class ProdukController extends Controller
             ]);
             return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
         }
+    }
+    public function activateProduk(ProdukStatusRequest $request) {
+        try {
+        $validated = $request->validated();
+
+        $produk = Produk::where('id', $validated['id'])
+            ->where('pass_access', $validated['pass_access'])
+            ->first();
+
+        if (!$produk) {
+            return ResponseCostum::error(null, 'Product not found or access denied', 404);
+        }
+
+        if ($produk->active === 'N') {
+            $produk->active = 'Y';
+            $produk->save();
+        }
+
+        return ResponseCostum::success(new ProdukResource($produk), 'Product status updated to true', 200);
+
+    } catch (\Throwable $th) {
+        Log::channel('daily')->error('Error in ProdukController@updateStatus: ' . $th->getMessage(), [
+            'exception' => $th,
+        ]);
+        return ResponseCostum::error(null, 'An error occurred: ' . $th->getMessage(), 500);
+    }
     }
 }
