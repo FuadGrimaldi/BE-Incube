@@ -16,7 +16,8 @@ Route::post('register',[AuthController::class, 'register']);
 Route::post('login',[AuthController::class, 'login']);
 Route::post('logout',[AuthController::class, 'logout']);
 Route::post('webhooks',[WebHookController::class, 'update']);
-Route::get('store-data', [DataProdukController::class, 'storeDataFromESP32']);
+Route::post('store-data', [DataProdukController::class, 'storeDataFromESP32']);
+Route::get('get-data', [DataProdukController::class, 'getDataFromESP32']);
 
 
 //harus menyertakan bearer token

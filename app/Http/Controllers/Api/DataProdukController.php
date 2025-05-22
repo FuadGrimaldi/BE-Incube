@@ -9,13 +9,73 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseCostum;
 use Illuminate\Support\Facades\Log;
 use App\Http\Resources\DataProdukResource;  
+use App\Http\Requests\DataProdukRequest;
 
 class DataProdukController extends Controller
 {
+    
 
-    public function storeDataFromESP32() {
-        //
+    public function getDataFromESP32(Request $request) {
+        try {
+            $validated = $request->validate([
+                'id_produk' => 'required|string',
+                'suhu' => 'required|numeric',
+                'humid' => 'required|numeric',
+                'gas' => 'required|numeric',
+                'fan' => 'required|string',
+                'lampu' => 'required|string',
+            ]);
+            $dataProduk = DataProduk::create([
+                'id_produk' => $validated['id_produk'],
+                'suhu'      => $validated['suhu'],
+                'humid'     => $validated['humid'],
+                'gas'       => $validated['gas'],
+                'fan'       => $validated['fan'],
+                'lampu'     => $validated['lampu'],
+                'ts'        => now(),
+            ]);
+            if (!$dataProduk) {
+                return ResponseCostum::error(null, 'Failed to save sensor data', 500);
+            }
+            return ResponseCostum::success($dataProduk, 'Sensor data saved successfully', 201);
+        } catch (\Throwable $e) {
+            Log::channel('daily')->error('Error in store: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
+        }
     }
+    public function storeDataFromESP32(Request $request) {
+        try {
+            $validated = $request->validate([
+                'id_produk' => 'required|string',
+                'suhu' => 'required|numeric',
+                'humid' => 'required|numeric',
+                'gas' => 'required|numeric',
+                'fan' => 'required|string',
+                'lampu' => 'required|string',
+            ]);
+            $dataProduk = DataProduk::create([
+                'id_produk' => $validated['id_produk'],
+                'suhu'      => $validated['suhu'],
+                'humid'     => $validated['humid'],
+                'gas'       => $validated['gas'],
+                'fan'       => $validated['fan'],
+                'lampu'     => $validated['lampu'],
+                'ts'        => now(),
+            ]);
+            if (!$dataProduk) {
+                return ResponseCostum::error(null, 'Failed to save sensor data', 500);
+            }
+            return ResponseCostum::success($dataProduk, 'Sensor data saved successfully', 201);
+        } catch (\Throwable $e) {
+            Log::channel('daily')->error('Error in store: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
+        }
+    }
+
 
     
     public function dataProdukByIdProduk(string $id) {
