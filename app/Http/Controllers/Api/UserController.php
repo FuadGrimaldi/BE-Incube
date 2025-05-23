@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Http\Requests\UserRequest;
 use App\Models\DetailUser;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -53,6 +54,14 @@ class UserController extends Controller
             }
             $data = $request->validated();
             $data['id_user'] = $user->id;
+
+            // Upload file ke S3 jika ada
+            if ($request->hasFile('profile_picture')) {
+                $file = $request->file('profile_picture');
+                $path = $file->store('profile_pictures', 's3'); // folder di bucket
+                $url = Storage::disk('s3')->url($path);
+                $data['profile_picture'] = $url;
+            }
 
             $detailUser = DetailUser::create($data);
             $user->detail()->save($detailUser);
