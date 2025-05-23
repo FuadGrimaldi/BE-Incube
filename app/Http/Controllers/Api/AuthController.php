@@ -76,7 +76,14 @@ class AuthController extends Controller
             $userResponse->token_expires_in = auth()->factory()->getTTl()* 60;
             $userResponse->token_type = 'bearer';
 
-            return ResponseCostum::success($userResponse,'User logged in successfully', 200);
+            return response()->json([
+                'user' => [
+                    'id' => $userResponse->id,
+                    'name' => $userResponse->name,
+                    'email' => $userResponse->email,
+                ],
+                'access_token' => $token
+            ], 200);  ;
 
         } catch (JWTException $th) {
             return ResponseCostum::error(null, 'Could not create token', 500);
