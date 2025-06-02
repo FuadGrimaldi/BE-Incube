@@ -33,7 +33,7 @@ Route::group(['middleware' => 'jwt.verify'], function($router) {
     Route::get('user/user-subscriptions', [UserSubController::class, 'showUserSubByIdLogin']);
     Route::get('user/addresses', [AddressController::class, 'addressByUserSignIn']);
     Route::get('user/profile', [UserController::class, 'profile']);
-    Route::put('user/update', [UserController::class, 'update']);
+    Route::put('user/update', [UserController::class, 'updateProfile']);
 
 });
 
