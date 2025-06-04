@@ -32,8 +32,10 @@ Route::group(['middleware' => 'jwt.verify'], function($router) {
     Route::get('user/data-produk/{id}', [DataProdukController::class, 'dataProdukByIdProduk']);
     Route::get('user/user-subscriptions', [UserSubController::class, 'showUserSubByIdLogin']);
     Route::get('user/addresses', [AddressController::class, 'addressByUserSignIn']);
+    Route::put('user/update-addresses', [AddressController::class, 'updateAddress']);
+    Route::post('user/store-addresses', [AddressController::class, 'storeAddressByUserLogin']);
     Route::get('user/profile', [UserController::class, 'profile']);
-    Route::put('user/update', [UserController::class, 'updateProfile']);
+    Route::put('user/update-profile', [UserController::class, 'updateProfile']);
 
 });
 

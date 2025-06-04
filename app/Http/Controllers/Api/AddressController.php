@@ -131,8 +131,23 @@ class AddressController extends Controller
         }
     }
 
-    public function updateAddress() {
-        //
+    public function updateAddress(AddressRequest $request)
+    {
+        try {
+            $user = auth()->user();
+            $address = Address::where('id_user', $user->id)->first();
+            if (!$address) {
+                return ResponseCostum::error(null, 'Address not found', 404);
+            }
+            $validatedData = $request->validated();
+            $address->update($validatedData);
+            return ResponseCostum::success(new AddressResource($address), 'Address updated successfully', 200);
+        } catch (\Exception $e) {
+            Log::channel('daily')->error('Error in update Address: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
+        }
     }
 
     public function addressByUserSignIn() {
@@ -146,6 +161,21 @@ class AddressController extends Controller
 
         } catch (\Exception $e) {
             Log::channel('daily')->error('Error in addressByUserSignIn: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function storeAddressByUserLogin(AddressRequest $request) {
+        try {
+            $user = auth()->user();
+            $validatedData = $request->validated();
+            $validatedData['id_user'] = $user->id; // Set the user ID from the authenticated user
+            $address = Address::create($validatedData);
+            return ResponseCostum::success(new AddressResource($address), 'Address created successfully', 201);
+        } catch (\Exception $e) {
+            Log::channel('daily')->error('Error in storeAddressByUserLogin: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);
             return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
