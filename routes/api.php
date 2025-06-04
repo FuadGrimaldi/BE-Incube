@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\UserSubController;
 use App\Http\Controllers\Api\ProdukController;
 use App\Http\Controllers\Api\DataProdukController;
+use App\Http\Controllers\Api\SensorController;
 
 
 Route::post('register',[AuthController::class, 'register']);
@@ -18,6 +19,12 @@ Route::post('logout',[AuthController::class, 'logout']);
 Route::post('webhooks',[WebHookController::class, 'update']);
 Route::post('store-data', [DataProdukController::class, 'storeDataFromESP32']);
 Route::get('get-data', [DataProdukController::class, 'getDataFromESP32']);
+
+
+Route::get('device-setting/{device_id}', [SensorController::class, 'getDeviceSetting']);
+Route::put('update-threshold/{device_id}', [SensorController::class, 'updateThreshold']);
+Route::put('update-fan-status/{device_id}', [SensorController::class, 'updateFanStatus']);
+Route::put('update-lampu-status/{device_id}', [SensorController::class, 'updateLampuStatus']);
 
 
 //harus menyertakan bearer token
