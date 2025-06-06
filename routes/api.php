@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\SensorController;
 
 Route::post('register',[AuthController::class, 'register']);
 Route::post('login',[AuthController::class, 'login']);
+Route::post('refresh',[AuthController::class, 'refresh']);
 Route::post('logout',[AuthController::class, 'logout']);
 Route::post('webhooks',[WebHookController::class, 'update']);
 Route::post('store-data', [DataProdukController::class, 'storeDataFromESP32']);
@@ -25,6 +26,8 @@ Route::get('device-setting/{device_id}', [SensorController::class, 'getDeviceSet
 Route::put('update-threshold/{device_id}', [SensorController::class, 'updateThreshold']);
 Route::put('update-fan-status/{device_id}', [SensorController::class, 'updateFanStatus']);
 Route::put('update-lampu-status/{device_id}', [SensorController::class, 'updateLampuStatus']);
+
+Route::post('users/{id}', [UserController::class, 'createUser']);
 
 
 //harus menyertakan bearer token

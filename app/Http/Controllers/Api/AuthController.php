@@ -22,7 +22,7 @@ class AuthController extends Controller
     {
         $data = $request->all();
         $validator = Validator::make($data, [
-            'name' => 'required|string',
+            'username' => 'required|string',
             'email' => 'required|email',
             'password' => 'required|string|min:6',
         ]);
@@ -39,7 +39,7 @@ class AuthController extends Controller
 
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->username,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
@@ -87,6 +87,20 @@ class AuthController extends Controller
 
         } catch (JWTException $th) {
             return ResponseCostum::error(null, 'Could not create token', 500);
+        }
+    }
+    
+    public function refresh(Request $request)
+    {
+        try {
+            $newToken = auth()->refresh();
+            return response()->json([
+                'access_token' => $newToken,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60
+            ], 200);
+        } catch (JWTException $e) {
+            return ResponseCostum::error(null, 'Token refresh failed', 401);
         }
     }
     public function logout(Request $request) {

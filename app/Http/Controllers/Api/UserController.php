@@ -166,5 +166,33 @@ class UserController extends Controller
             return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
         }
     }
+    public function createUser(UserRequest $request, string $id)
+    {
+        try {
+            $data = $request->validated();
+            $data['id_user'] = $id;
+
+            // Upload file ke S3 jika ada
+            if ($request->hasFile('profile_picture')) {
+                $file = $request->file('profile_picture');
+                $path = $file->store('profile_pictures', 's3'); // folder di bucket
+                $url = Storage::disk('s3')->url($path);
+                $data['profile_picture'] = $url;
+            }
+            
+            $user = User::findOrFail($id);
+
+            // Simpan data detail user melalui relasi
+            $user->detail()->create($data); 
+
+            return ResponseCostum::success(new UserResource($user), 'User created successfully', 201);
+
+        } catch (\Exception $e) {
+            Log::channel('daily')->error('Error in store: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            return ResponseCostum::error(null, 'An error occurred: ' . $e->getMessage(), 500);
+        }
+    }
 }
 
