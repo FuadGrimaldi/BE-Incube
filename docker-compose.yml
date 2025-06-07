@@ -1,11 +1,8 @@
 version: "3.8"
 
 services:
-    app:
-        build:
-            context: .
-            dockerfile: .docker/php/Dockerfile
-        image: be-incube
+    be-incube:
+        image: fuadgrimaldi/be-incube:latest
         container_name: be-incube
         restart: unless-stopped
         ports:
